@@ -3,7 +3,7 @@ name: Run meeting bot
 on:
   schedule:
     # 9 AM Eastern European Summer Time (GMT+3)
-    # = 12:00 UTC, Tuesday & Thursday
+    # = 12:00 UTC, Monday-Friday
     - cron: '0 12 * * 2,4'
 
 jobs:
