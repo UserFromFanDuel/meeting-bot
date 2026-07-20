@@ -1,0 +1,651 @@
+{
+  "members": {
+    "U07Q1FX18P4": {
+      "name": "Denis Malendra",
+      "first_name": "Denis",
+      "last_name": "Malendra",
+      "email": "denis.malendra@fanduel.com",
+      "first_seen": "2026-02-27",
+      "meetings_observed": 3,
+      "last_led": "2026-07-07",
+      "total_led": 2,
+      "total_nominated": 5,
+      "total_accepted": 2,
+      "total_declined": 2,
+      "is_observer": false
+    },
+    "U03HWCMCALD": {
+      "name": "Cristian Titan",
+      "first_name": "Cristian",
+      "last_name": "Titan",
+      "email": "cristian.titan@fanduel.com",
+      "first_seen": "2026-02-27",
+      "meetings_observed": 3,
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 4,
+      "total_accepted": 0,
+      "total_declined": 1,
+      "is_observer": true
+    },
+    "U06K545T6HH": {
+      "name": "Michael Schneider",
+      "first_name": "Michael",
+      "last_name": "Schneider",
+      "email": "michael.schneider@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-07-14",
+      "total_led": 2,
+      "total_nominated": 2,
+      "total_accepted": 2,
+      "total_declined": 0,
+      "is_observer": false
+    },
+    "U0105N79K7Y": {
+      "name": "Sorin Petre",
+      "first_name": "Sorin",
+      "last_name": "Petre",
+      "email": "sorin.petre@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 0,
+      "total_accepted": 0,
+      "total_declined": 0,
+      "is_observer": true
+    },
+    "U0KFY85L1": {
+      "name": "Nicu Morariu",
+      "first_name": "Nicu",
+      "last_name": "Morariu",
+      "email": "nicu.morariu@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 0,
+      "total_accepted": 0,
+      "total_declined": 0,
+      "is_observer": true
+    },
+    "U0ASKF9EMJ7": {
+      "name": "Delia Voican",
+      "first_name": "Delia",
+      "last_name": "Voican",
+      "email": "delia.voican@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-07-09",
+      "total_led": 2,
+      "total_nominated": 6,
+      "total_accepted": 2,
+      "total_declined": 3,
+      "is_observer": false
+    },
+    "U0824UQDDGW": {
+      "name": "Ionut Doci",
+      "first_name": "Ionut",
+      "last_name": "Doci",
+      "email": "ionut.doci@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 0,
+      "total_accepted": 0,
+      "total_declined": 0,
+      "is_observer": true
+    },
+    "U08S9EPPS1K": {
+      "name": "Oana Huzau",
+      "first_name": "Oana",
+      "last_name": "Huzau",
+      "email": "oana.huzau@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-05-28",
+      "total_led": 1,
+      "total_nominated": 4,
+      "total_accepted": 1,
+      "total_declined": 3,
+      "is_observer": false
+    },
+    "U06F35T4LRX": {
+      "name": "Mihai Popescu",
+      "first_name": "Mihai",
+      "last_name": "Popescu",
+      "email": "mihai.popescu@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-06-04",
+      "total_led": 1,
+      "total_nominated": 1,
+      "total_accepted": 1,
+      "total_declined": 0,
+      "is_observer": false
+    },
+    "U08LC4UULTB": {
+      "name": "Cosmin Rus",
+      "first_name": "Cosmin",
+      "last_name": "Rus",
+      "email": "cosmin.rus@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 0,
+      "total_accepted": 0,
+      "total_declined": 0,
+      "is_observer": true
+    },
+    "U040N7NBNBU": {
+      "name": "Miha",
+      "first_name": "Miha",
+      "last_name": "",
+      "email": "mihaela.marinca@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-05-26",
+      "total_led": 1,
+      "total_nominated": 2,
+      "total_accepted": 1,
+      "total_declined": 1,
+      "is_observer": false
+    },
+    "U08U7GQQD8C": {
+      "name": "Lana Sumilin",
+      "first_name": "Lana",
+      "last_name": "Sumilin",
+      "email": "lana.sumilin@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-06-18",
+      "total_led": 1,
+      "total_nominated": 1,
+      "total_accepted": 1,
+      "total_declined": 0,
+      "is_observer": false
+    },
+    "U0ACH0H45UL": {
+      "name": "Daniela Baciu",
+      "first_name": "Daniela",
+      "last_name": "Baciu",
+      "email": "daniela.baciu@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": "2026-07-16",
+      "total_led": 2,
+      "total_nominated": 5,
+      "total_accepted": 2,
+      "total_declined": 0,
+      "is_observer": false
+    },
+    "UDNSNSPLK": {
+      "name": "Carina B\u00fck\u00f6s",
+      "first_name": "Carina",
+      "last_name": "B\u00fck\u00f6s",
+      "email": "carina.bukos@fanduel.com",
+      "first_seen": "2026-05-12",
+      "last_led": null,
+      "total_led": 0,
+      "total_nominated": 0,
+      "total_accepted": 0,
+      "total_declined": 0,
+      "is_observer": true
+    }
+  },
+  "history": [
+    {
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "leader_id": "U03HWCMCALD",
+      "leader_name": "Cristian Titan",
+      "leader_email": "cristian.titan@fanduel.com",
+      "week": "2026-W09",
+      "status": "declined",
+      "nomination_id": "U03HWCMCALD_20260303"
+    },
+    {
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "leader_id": "U08LC4UULTB",
+      "leader_name": "Cosmin Rus",
+      "leader_email": "cosmin.rus@fanduel.com",
+      "week": "2026-W09",
+      "status": "nominated",
+      "nomination_id": "U08LC4UULTB_20260303_103405"
+    },
+    {
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "leader_id": "U03HWCMCALD",
+      "leader_name": "Cristian Titan",
+      "leader_email": "cristian.titan@fanduel.com",
+      "week": "2026-W09",
+      "status": "nominated",
+      "nomination_id": "U03HWCMCALD_20260305"
+    },
+    {
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "leader_id": "U040N7NBNBU",
+      "leader_name": "Miha",
+      "leader_email": "mihaela.marinca@fanduel.com",
+      "week": "2026-W10",
+      "status": "accepted",
+      "nomination_id": "U040N7NBNBU_20260310"
+    },
+    {
+      "date": "2026-03-12",
+      "day": "Thursday",
+      "leader_id": "U06K545T6HH",
+      "leader_name": "Michael Schneider",
+      "leader_email": "michael.schneider@fanduel.com",
+      "week": "2026-W10",
+      "status": "accepted",
+      "nomination_id": "U06K545T6HH_20260312"
+    },
+    {
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "leader_id": "U08U7GQQD8C",
+      "leader_name": "Lana Sumilin",
+      "leader_email": "lana.sumilin@fanduel.com",
+      "week": "2026-W11",
+      "status": "accepted",
+      "nomination_id": "U08U7GQQD8C_20260317"
+    },
+    {
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "leader_id": "U0105N79K7Y",
+      "leader_name": "Sorin Petre",
+      "leader_email": "sorin.petre@fanduel.com",
+      "week": "2026-W11",
+      "status": "nominated",
+      "nomination_id": "U0105N79K7Y_20260319"
+    },
+    {
+      "date": "2026-03-24",
+      "day": "Tuesday",
+      "leader_id": "U06F35T4LRX",
+      "leader_name": "Mihai Popescu",
+      "leader_email": "mihai.popescu@fanduel.com",
+      "week": "2026-W12",
+      "status": "accepted",
+      "nomination_id": "U06F35T4LRX_20260324_102028"
+    },
+    {
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "leader_id": "U08LC4UULTB",
+      "leader_name": "Cosmin Rus",
+      "leader_email": "cosmin.rus@fanduel.com",
+      "week": "2026-W13",
+      "status": "declined",
+      "nomination_id": "U08LC4UULTB_20260331"
+    },
+    {
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W13",
+      "status": "accepted",
+      "nomination_id": "U0ACH0H45UL_20260331_101125"
+    },
+    {
+      "date": "2026-04-07",
+      "day": "Tuesday",
+      "leader_id": "U07Q1FX18P4",
+      "leader_name": "Denis Malendra",
+      "leader_email": "denis.malendra@fanduel.com",
+      "week": "2026-W14",
+      "status": "accepted",
+      "nomination_id": "U07Q1FX18P4_20260407"
+    },
+    {
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "leader_id": "U03HWCMCALD",
+      "leader_name": "Cristian Titan",
+      "leader_email": "cristian.titan@fanduel.com",
+      "week": "2026-W19",
+      "status": "nominated",
+      "nomination_id": "U03HWCMCALD_20260512_151638"
+    },
+    {
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "leader_id": "U03HWCMCALD",
+      "leader_name": "Cristian Titan",
+      "leader_email": "cristian.titan@fanduel.com",
+      "week": "2026-W19",
+      "status": "nominated",
+      "nomination_id": "U03HWCMCALD_20260512_151700"
+    },
+    {
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "leader_id": "U07Q1FX18P4",
+      "leader_name": "Denis Malendra",
+      "leader_email": "denis.malendra@fanduel.com",
+      "week": "2026-W19",
+      "status": "declined",
+      "nomination_id": "U07Q1FX18P4_20260512_151730"
+    },
+    {
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "leader_id": "U07Q1FX18P4",
+      "leader_name": "Denis Malendra",
+      "leader_email": "denis.malendra@fanduel.com",
+      "week": "2026-W19",
+      "status": "declined",
+      "nomination_id": "U07Q1FX18P4_20260512_151734"
+    },
+    {
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "leader_id": "U07Q1FX18P4",
+      "leader_name": "Denis Malendra",
+      "leader_email": "denis.malendra@fanduel.com",
+      "week": "2026-W19",
+      "status": "nominated",
+      "nomination_id": "U07Q1FX18P4_20260512_151744"
+    },
+    {
+      "date": "2026-05-26",
+      "day": "Tuesday",
+      "leader_id": "U040N7NBNBU",
+      "leader_name": "Miha",
+      "leader_email": "mihaela.marinca@fanduel.com",
+      "week": "2026-W21",
+      "status": "accepted",
+      "nomination_id": "U040N7NBNBU_20260526_100056"
+    },
+    {
+      "date": "2026-05-28",
+      "day": "Thursday",
+      "leader_id": "U08S9EPPS1K",
+      "leader_name": "Oana Huzau",
+      "leader_email": "oana.huzau@fanduel.com",
+      "week": "2026-W21",
+      "status": "accepted",
+      "nomination_id": "U08S9EPPS1K_20260528_100035"
+    },
+    {
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W22",
+      "status": "nominated",
+      "nomination_id": "U0ACH0H45UL_20260602_100045"
+    },
+    {
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W22",
+      "status": "declined",
+      "nomination_id": "U0ASKF9EMJ7_20260604_100106"
+    },
+    {
+      "date": "2026-06-04",
+      "day": "Thursday",
+      "leader_id": "U06F35T4LRX",
+      "leader_name": "Mihai Popescu",
+      "leader_email": "mihai.popescu@fanduel.com",
+      "week": "2026-W22",
+      "status": "accepted",
+      "nomination_id": "U06F35T4LRX_20260604_100338"
+    },
+    {
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W23",
+      "status": "declined",
+      "nomination_id": "U0ASKF9EMJ7_20260609_100041"
+    },
+    {
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W23",
+      "status": "declined",
+      "nomination_id": "U0ASKF9EMJ7_20260609_101837"
+    },
+    {
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W23",
+      "status": "nominated",
+      "nomination_id": "U0ASKF9EMJ7_20260609_101956"
+    },
+    {
+      "date": "2026-06-11",
+      "day": "Thursday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W23",
+      "status": "accepted",
+      "nomination_id": "U0ASKF9EMJ7_20260611_100939"
+    },
+    {
+      "date": "2026-06-16",
+      "day": "Tuesday",
+      "leader_id": "U06K545T6HH",
+      "leader_name": "Michael Schneider",
+      "leader_email": "michael.schneider@fanduel.com",
+      "week": "2026-W24",
+      "status": "accepted",
+      "nomination_id": "U06K545T6HH_20260616_100112"
+    },
+    {
+      "date": "2026-06-18",
+      "day": "Thursday",
+      "leader_id": "U08U7GQQD8C",
+      "leader_name": "Lana Sumilin",
+      "leader_email": "lana.sumilin@fanduel.com",
+      "week": "2026-W24",
+      "status": "accepted",
+      "nomination_id": "U08U7GQQD8C_20260618_100034"
+    },
+    {
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W25",
+      "status": "nominated",
+      "nomination_id": "U0ACH0H45UL_20260623_100102"
+    },
+    {
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W25",
+      "status": "nominated",
+      "nomination_id": "U0ACH0H45UL_20260625_100023"
+    },
+    {
+      "date": "2026-06-30",
+      "day": "Tuesday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W26",
+      "status": "accepted",
+      "nomination_id": "U0ACH0H45UL_20260630_100107"
+    },
+    {
+      "date": "2026-07-07",
+      "day": "Tuesday",
+      "leader_id": "U07Q1FX18P4",
+      "leader_name": "Denis Malendra",
+      "leader_email": "denis.malendra@fanduel.com",
+      "week": "2026-W27",
+      "status": "accepted",
+      "nomination_id": "U07Q1FX18P4_20260707_100106"
+    },
+    {
+      "date": "2026-07-09",
+      "day": "Thursday",
+      "leader_id": "U0ASKF9EMJ7",
+      "leader_name": "Delia Voican",
+      "leader_email": "delia.voican@fanduel.com",
+      "week": "2026-W27",
+      "status": "accepted",
+      "nomination_id": "U0ASKF9EMJ7_20260709_100043"
+    },
+    {
+      "date": "2026-07-14",
+      "day": "Tuesday",
+      "leader_id": "U040N7NBNBU",
+      "leader_name": "Miha",
+      "leader_email": "mihaela.marinca@fanduel.com",
+      "week": "2026-W28",
+      "status": "declined",
+      "nomination_id": "U040N7NBNBU_20260714_100031"
+    },
+    {
+      "date": "2026-07-14",
+      "day": "Tuesday",
+      "leader_id": "U06K545T6HH",
+      "leader_name": "Michael Schneider",
+      "leader_email": "michael.schneider@fanduel.com",
+      "week": "2026-W28",
+      "status": "accepted",
+      "nomination_id": "U06K545T6HH_20260714_100308"
+    },
+    {
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "leader_id": "U08S9EPPS1K",
+      "leader_name": "Oana Huzau",
+      "leader_email": "oana.huzau@fanduel.com",
+      "week": "2026-W28",
+      "status": "declined",
+      "nomination_id": "U08S9EPPS1K_20260716_100045"
+    },
+    {
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "leader_id": "U08S9EPPS1K",
+      "leader_name": "Oana Huzau",
+      "leader_email": "oana.huzau@fanduel.com",
+      "week": "2026-W28",
+      "status": "declined",
+      "nomination_id": "U08S9EPPS1K_20260716_100054"
+    },
+    {
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "leader_id": "U08S9EPPS1K",
+      "leader_name": "Oana Huzau",
+      "leader_email": "oana.huzau@fanduel.com",
+      "week": "2026-W28",
+      "status": "declined",
+      "nomination_id": "U08S9EPPS1K_20260716_100102"
+    },
+    {
+      "date": "2026-07-16",
+      "day": "Thursday",
+      "leader_id": "U0ACH0H45UL",
+      "leader_name": "Daniela Baciu",
+      "leader_email": "daniela.baciu@fanduel.com",
+      "week": "2026-W28",
+      "status": "accepted",
+      "nomination_id": "U0ACH0H45UL_20260716_100117"
+    }
+  ],
+  "pending_nominations": {
+    "U08LC4UULTB_20260303_103405": {
+      "user_id": "U08LC4UULTB",
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W09"
+    },
+    "U03HWCMCALD_20260305": {
+      "user_id": "U03HWCMCALD",
+      "date": "2026-03-05",
+      "day": "Thursday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W09"
+    },
+    "U0105N79K7Y_20260319": {
+      "user_id": "U0105N79K7Y",
+      "date": "2026-03-19",
+      "day": "Thursday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W11"
+    },
+    "U03HWCMCALD_20260512_151638": {
+      "user_id": "U03HWCMCALD",
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "channel_id": "C0AHX9QT03B",
+      "week": "2026-W19"
+    },
+    "U03HWCMCALD_20260512_151700": {
+      "user_id": "U03HWCMCALD",
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "channel_id": "C0AHX9QT03B",
+      "week": "2026-W19"
+    },
+    "U07Q1FX18P4_20260512_151744": {
+      "user_id": "U07Q1FX18P4",
+      "date": "2026-05-12",
+      "day": "Tuesday",
+      "channel_id": "C0AHX9QT03B",
+      "week": "2026-W19"
+    },
+    "U0ACH0H45UL_20260602_100045": {
+      "user_id": "U0ACH0H45UL",
+      "date": "2026-06-02",
+      "day": "Tuesday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W22"
+    },
+    "U0ASKF9EMJ7_20260609_101956": {
+      "user_id": "U0ASKF9EMJ7",
+      "date": "2026-06-09",
+      "day": "Tuesday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W23"
+    },
+    "U0ACH0H45UL_20260623_100102": {
+      "user_id": "U0ACH0H45UL",
+      "date": "2026-06-23",
+      "day": "Tuesday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W25"
+    },
+    "U0ACH0H45UL_20260625_100023": {
+      "user_id": "U0ACH0H45UL",
+      "date": "2026-06-25",
+      "day": "Thursday",
+      "channel_id": "C06J2M1HCJ3",
+      "week": "2026-W25"
+    }
+  },
+  "observers": [
+    "U03HWCMCALD",
+    "U0824UQDDGW",
+    "UDNSNSPLK",
+    "U08LC4UULTB",
+    "U0KFY85L1",
+    "U0105N79K7Y"
+  ],
+  "control_panel_ts": "1784179735.500839"
+}
