@@ -2,7 +2,8 @@ name: Run meeting bot
 
 on:
   schedule:
-    - cron: '20 16 * * *'
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   run_bot:
