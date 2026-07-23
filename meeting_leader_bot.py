@@ -1864,11 +1864,10 @@ def handle_member_left(event, client):
 # ============================================================================
 
 def run_scheduler(client):
-    """Run the scheduler in a separate background thread."""
-    schedule.every().tuesday.at("10:00").do(lambda: automated_nomination(client))
-    schedule.every().thursday.at("10:00").do(lambda: automated_nomination(client))
+    schedule.every().tuesday.at("07:00").do(lambda: automated_nomination(client))
+    schedule.every().thursday.at("07:00").do(lambda: automated_nomination(client))
     
-    logger.info("Scheduler started: Tue/Thu at 10:00 AM")
+   logger.info("Scheduler started: Tue/Thu at 07:00 UTC (10:00 AM Romanian time)")
     
     while True:
         try:
