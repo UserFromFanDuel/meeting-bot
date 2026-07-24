@@ -17,14 +17,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run meeting bot (with retry)
-        uses: nick-invision/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          retry_wait_seconds: 600
-          command: python meeting_leader_bot.py
+      - name: Run meeting bot (with automatic retry - 3 attempts, 10 min interval)
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           MEETING_CHANNEL_ID: ${{ secrets.MEETING_CHANNEL_ID }}
+        run: |
+          for attempt in 1 2 3; do
+            echo "🔄 Attempt $attempt of 3..."
+            if python meeting_leader_bot.py; then
+              echo "✅ Success on attempt $attempt"
+              exit 0
+            else
+              if [ $attempt -lt 3 ]; then
+                echo "❌ Attempt $attempt failed. Waiting 10 minutes before retry..."
+                sleep 600
+              else
+                echo "❌ All 3 attempts failed"
+                exit 1
+              fi
+            fi
+          done
