@@ -17,24 +17,51 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run meeting bot (with automatic retry - 3 attempts, 10 min interval)
+      - name: Run meeting bot with retry (3 attempts, 10 min interval)
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           MEETING_CHANNEL_ID: ${{ secrets.MEETING_CHANNEL_ID }}
         run: |
-          for attempt in 1 2 3; do
-            echo "🔄 Attempt $attempt of 3..."
+          MAX_ATTEMPTS=3
+          WAIT_TIME=600
+          ATTEMPT=0
+          SUCCESS=false
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ] && [ "$SUCCESS" = "false" ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "=========================================="
+            echo "🔄 ATTEMPT $ATTEMPT of $MAX_ATTEMPTS"
+            echo "Time: $(date)"
+            echo "=========================================="
+
             if python meeting_leader_bot.py; then
-              echo "✅ Success on attempt $attempt"
+              echo "✅ SUCCESS on attempt $ATTEMPT"
+              SUCCESS=true
               exit 0
             else
-              if [ $attempt -lt 3 ]; then
-                echo "❌ Attempt $attempt failed. Waiting 10 minutes before retry..."
-                sleep 600
-              else
-                echo "❌ All 3 attempts failed"
-                exit 1
+              EXIT_CODE=$?
+              echo "❌ FAILED on attempt $ATTEMPT (exit code: $EXIT_CODE)"
+
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo "⏳ Waiting $WAIT_TIME seconds (10 minutes) before retry..."
+                echo "Next attempt at: $(date -d "+$WAIT_TIME seconds")"
+                sleep $WAIT_TIME
               fi
             fi
           done
+
+          if [ "$SUCCESS" = "false" ]; then
+            echo "❌ ALL $MAX_ATTEMPTS ATTEMPTS FAILED"
+            exit 1
+          fi
+
+      - name: Notify failure (if all retries exhausted)
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          MEETING_CHANNEL_ID: ${{ secrets.MEETING_CHANNEL_ID }}
+        run: |
+          echo "⚠️ Meeting bot workflow failed after 3 attempts"
+          echo "Check GitHub Actions logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
