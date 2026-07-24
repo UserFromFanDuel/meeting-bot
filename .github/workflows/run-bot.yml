@@ -13,8 +13,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-      - run: pip install -r requirements.txt
-      - run: python meeting_leader_bot.py
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run meeting bot (with retry)
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 600
+          command: python meeting_leader_bot.py
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
