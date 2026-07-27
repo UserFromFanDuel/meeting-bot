@@ -1975,18 +1975,18 @@ def run_scheduler(client):
     Scheduler with two independent jobs for control panel and nominalization.
 
     Timeline:
-    - 09:23 AM RO (06:23 UTC): Post control panel
-    - 09:24 AM RO (06:24 UTC): Run nominalization (1 minute later)
+    - 08:00 AM RO (05:00 UTC): Post control panel
+    - 08:01 AM RO (05:01 UTC): Run nominalization (1 minute later)
     """
-    schedule.every().tuesday.at("06:23").do(lambda: post_control_panel_scheduled(client))
-    schedule.every().thursday.at("06:23").do(lambda: post_control_panel_scheduled(client))
+    schedule.every().tuesday.at("05:00").do(lambda: post_control_panel_scheduled(client))
+    schedule.every().thursday.at("05:00").do(lambda: post_control_panel_scheduled(client))
 
-    schedule.every().tuesday.at("06:24").do(lambda: run_nominalization_scheduled(client))
-    schedule.every().thursday.at("06:24").do(lambda: run_nominalization_scheduled(client))
+    schedule.every().tuesday.at("05:01").do(lambda: run_nominalization_scheduled(client))
+    schedule.every().thursday.at("05:01").do(lambda: run_nominalization_scheduled(client))
 
     logger.info("Scheduler started:")
-    logger.info("  • Control Panel: Tuesday & Thursday @ 09:23 AM RO (06:23 UTC)")
-    logger.info("  • Nominalization: Tuesday & Thursday @ 09:24 AM RO (06:24 UTC)")
+    logger.info("  • Control Panel: Tuesday & Thursday @ 08:00 AM RO (05:00 UTC)")
+    logger.info("  • Nominalization: Tuesday & Thursday @ 08:01 AM RO (05:01 UTC)")
 
     while True:
         try:
