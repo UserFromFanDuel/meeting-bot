@@ -1629,7 +1629,7 @@ def handle_member_quick_action(ack, body, client, action):
 # ============================================================================
 
 @app.command("/meeting-leader")
-def handle_meeting_leader(ack, command, say, client):
+def handle_meeting_leader(ack, command, client):
     """Main slash command handler for /meeting-leader."""
     ack()
 
@@ -1654,10 +1654,13 @@ def handle_meeting_leader(ack, command, say, client):
             selected_id = select_random_leader(data, today, client, check_status=False)
 
             if not selected_id:
-                say("🚫 **No available leaders today**\n\n"
-                    "Possible reasons:\n"
-                    "• All members already led this week\n"
-                    "• All members are marked as observers")
+                client.chat_postMessage(
+                    channel=channel_id,
+                    text="🚫 **No available leaders today**\n\n"
+                         "Possible reasons:\n"
+                         "• All members already led this week\n"
+                         "• All members are marked as observers"
+                )
                 save_data(data)
                 return
 
@@ -1666,16 +1669,22 @@ def handle_meeting_leader(ack, command, say, client):
             member_email = member.get("email", "N/A")
 
             if day_name not in ["Tuesday", "Thursday"]:
-                say(f"🎲 **Random selection result:** *<@{selected_id}>*\n\n"
-                    f"**Name:** {member_name}\n"
-                    f"**Email:** {member_email}\n\n"
-                    f"⚠️ Today is {day_name} - no sync meeting scheduled.")
+                client.chat_postMessage(
+                    channel=channel_id,
+                    text=f"🎲 **Random selection result:** *<@{selected_id}>*\n\n"
+                         f"**Name:** {member_name}\n"
+                         f"**Email:** {member_email}\n\n"
+                         f"⚠️ Today is {day_name} - no sync meeting scheduled."
+                )
                 return
 
             create_nomination(client, channel_id, selected_id, data, is_auto=False)
         except Exception as e:
             logger.error(f"Error in select command: {e}", exc_info=True)
-            say(f"❌ Error during selection: {str(e)}")
+            client.chat_postMessage(
+                channel=channel_id,
+                text=f"❌ Error during selection: {str(e)}"
+            )
     
     elif action == "sync":
         try:
@@ -1736,7 +1745,10 @@ def handle_meeting_leader(ack, command, say, client):
                 )
         except Exception as e:
             logger.error(f"Error in sync command: {e}", exc_info=True)
-            say(f"❌ Error during sync: {str(e)}")
+            client.chat_postMessage(
+                channel=channel_id,
+                text=f"❌ Error during sync: {str(e)}"
+            )
     
     elif action == "list":
         # Trigger same as panel button
@@ -1744,25 +1756,31 @@ def handle_meeting_leader(ack, command, say, client):
     
     elif action == "history":
         if not data["history"]:
-            say("📊 **No meeting history yet.**")
+            client.chat_postMessage(
+                channel=channel_id,
+                text="📊 **No meeting history yet.**"
+            )
             return
-        
+
         lines = ["*📊 Recent Meeting Leaders*\n"]
-        
+
         for entry in reversed(data["history"][-10:]):
             status_emoji = {
                 "nominated": "🎲",
                 "accepted": "✅",
                 "declined": "❌"
             }.get(entry.get("status", "nominated"), "")
-            
+
             date = entry['date']
             leader_name = entry['leader_name']
             status = entry.get('status', 'nominated')
-            
+
             lines.append(f"{status_emoji} **{date}** - {leader_name} ({status})")
-        
-        say("\n".join(lines))
+
+        client.chat_postMessage(
+            channel=channel_id,
+            text="\n".join(lines)
+        )
     
     elif action == "stats" or action == "statistics":
         # Trigger same as panel button
@@ -1779,10 +1797,15 @@ def handle_meeting_leader(ack, command, say, client):
     
     elif action == "refresh-panel":
         refresh_control_panel(client, channel_id, data)
-        say("✅ Control panel refreshed!")
+        client.chat_postMessage(
+            channel=channel_id,
+            text="✅ Control panel refreshed!"
+        )
     
     else:
-        say("""*🤖 Meeting Leader Bot - Control Panel Edition*
+        client.chat_postMessage(
+            channel=channel_id,
+            text="""*🤖 Meeting Leader Bot - Control Panel Edition*
 
 *🎮 Interactive Control Panel:*
 A persistent control panel with visual buttons is available in the channel for easy access to all features.
@@ -1842,7 +1865,8 @@ A persistent control panel with visual buttons is available in the channel for e
 • **Clean channel** - No spam from individual queries
 • **Minimal logging** - Silent operation by default
 
-_Use the control panel buttons above or type commands for quick access!_""")
+_Use the control panel buttons above or type commands for quick access!_"""
+        )
 # ============================================================================
 # EVENT LISTENERS
 # ============================================================================
