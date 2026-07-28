@@ -1632,10 +1632,10 @@ def handle_member_quick_action(ack, body, client, action):
 def handle_meeting_leader(ack, command, say, client):
     """Main slash command handler for /meeting-leader."""
     ack()
-    
+
     text = command.get("text", "").strip()
     channel_id = command["channel_id"]
-    user_id = command["user"]["id"]
+    user_id = command["user_id"]
     
     logger.info(f"Command: /meeting-leader {text}")
     
@@ -1977,6 +1977,9 @@ def run_scheduler(client):
     Timeline:
     - 08:00 AM RO (05:00 UTC): Post control panel
     - 08:01 AM RO (05:01 UTC): Run nominalization (1 minute later)
+
+    CATCH-UP LOGIC: If bot starts late (after 05:00 UTC on Tue/Thu), runs jobs immediately.
+    This handles GitHub Actions queue delays.
     """
     schedule.every().tuesday.at("05:00").do(lambda: post_control_panel_scheduled(client))
     schedule.every().thursday.at("05:00").do(lambda: post_control_panel_scheduled(client))
@@ -1987,6 +1990,21 @@ def run_scheduler(client):
     logger.info("Scheduler started:")
     logger.info("  • Control Panel: Tuesday & Thursday @ 08:00 AM RO (05:00 UTC)")
     logger.info("  • Nominalization: Tuesday & Thursday @ 08:01 AM RO (05:01 UTC)")
+
+    # CATCH-UP LOGIC: Run jobs immediately if bot started late
+    now = datetime.now()
+    day_name = now.strftime("%A")
+    hour_minute = now.strftime("%H:%M")
+
+    if day_name in ["Tuesday", "Thursday"]:
+        if hour_minute >= "05:00" and hour_minute < "05:01":
+            logger.info("⏰ Running CATCH-UP: Post control panel (late start)")
+            post_control_panel_scheduled(client)
+        elif hour_minute >= "05:01":
+            logger.info("⏰ Running CATCH-UP: Post control panel (late start)")
+            post_control_panel_scheduled(client)
+            logger.info("⏰ Running CATCH-UP: Run nominalization (late start)")
+            run_nominalization_scheduled(client)
 
     while True:
         try:
