@@ -1645,90 +1645,98 @@ def handle_meeting_leader(ack, command, say, client):
     action = parts[0].lower() if parts else "help"
     
     if action == "select":
-        sync_channel_members(client, channel_id, data, verbose=False)
-        
-        today = datetime.now()
-        day_name = today.strftime("%A")
-        
-        selected_id = select_random_leader(data, today, client, check_status=False)
-        
-        if not selected_id:
-            say("🚫 **No available leaders today**\n\n"
-                "Possible reasons:\n"
-                "• All members already led this week\n"
-                "• All members are marked as observers")
-            save_data(data)
-            return
-        
-        member = data["members"][selected_id]
-        member_name = member["name"]
-        member_email = member.get("email", "N/A")
-        
-        if day_name not in ["Tuesday", "Thursday"]:
-            say(f"🎲 **Random selection result:** *<@{selected_id}>*\n\n"
-                f"**Name:** {member_name}\n"
-                f"**Email:** {member_email}\n\n"
-                f"⚠️ Today is {day_name} - no sync meeting scheduled.")
-            return
-        
-        create_nomination(client, channel_id, selected_id, data, is_auto=False)
+        try:
+            sync_channel_members(client, channel_id, data, verbose=False)
+
+            today = datetime.now()
+            day_name = today.strftime("%A")
+
+            selected_id = select_random_leader(data, today, client, check_status=False)
+
+            if not selected_id:
+                say("🚫 **No available leaders today**\n\n"
+                    "Possible reasons:\n"
+                    "• All members already led this week\n"
+                    "• All members are marked as observers")
+                save_data(data)
+                return
+
+            member = data["members"][selected_id]
+            member_name = member["name"]
+            member_email = member.get("email", "N/A")
+
+            if day_name not in ["Tuesday", "Thursday"]:
+                say(f"🎲 **Random selection result:** *<@{selected_id}>*\n\n"
+                    f"**Name:** {member_name}\n"
+                    f"**Email:** {member_email}\n\n"
+                    f"⚠️ Today is {day_name} - no sync meeting scheduled.")
+                return
+
+            create_nomination(client, channel_id, selected_id, data, is_auto=False)
+        except Exception as e:
+            logger.error(f"Error in select command: {e}", exc_info=True)
+            say(f"❌ Error during selection: {str(e)}")
     
     elif action == "sync":
-        post_ephemeral_message(
-            client,
-            channel_id,
-            user_id,
-            text="🔄 Syncing members...",
-            blocks=[
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "🔄 *Syncing members...*\n\nPlease wait..."
-                    }
-                }
-            ]
-        )
-        
-        sync_result = sync_channel_members(client, channel_id, data, verbose=False)
-        
-        result_lines = []
-        
-        if sync_result["new_count"] > 0 or sync_result["removed_count"] > 0:
-            result_lines.append("✅ *Sync Complete!*\n")
-            
-            if sync_result["new_count"] > 0:
-                result_lines.append(f"**Added:** {sync_result['new_count']} member(s)")
-                for name in sync_result["new_members"][:5]:
-                    result_lines.append(f"  • {name}")
-                if len(sync_result["new_members"]) > 5:
-                    result_lines.append(f"  • ... and {len(sync_result['new_members']) - 5} more")
-                result_lines.append("")
-            
-            if sync_result["removed_count"] > 0:
-                result_lines.append(f"**Removed:** {sync_result['removed_count']} member(s)")
-                for name in sync_result["removed_members"][:5]:
-                    result_lines.append(f"  • {name}")
-                if len(sync_result["removed_members"]) > 5:
-                    result_lines.append(f"  • ... and {len(sync_result['removed_members']) - 5} more")
-                result_lines.append("")
-            
-            result_lines.append(f"**Total members:** {sync_result['total_count']}")
-            
-            try:
-                client.chat_postMessage(
-                    channel=channel_id,
-                    text="\n".join(result_lines)
-                )
-            except Exception as e:
-                logger.error(f"Error posting sync result: {e}")
-        else:
+        try:
             post_ephemeral_message(
                 client,
                 channel_id,
                 user_id,
-                text="✅ *Sync Complete!*\n\nNo changes detected. All members are up to date.\n\n**Total members:** " + str(sync_result['total_count'])
+                text="🔄 Syncing members...",
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "🔄 *Syncing members...*\n\nPlease wait..."
+                        }
+                    }
+                ]
             )
+
+            sync_result = sync_channel_members(client, channel_id, data, verbose=False)
+
+            result_lines = []
+
+            if sync_result["new_count"] > 0 or sync_result["removed_count"] > 0:
+                result_lines.append("✅ *Sync Complete!*\n")
+
+                if sync_result["new_count"] > 0:
+                    result_lines.append(f"**Added:** {sync_result['new_count']} member(s)")
+                    for name in sync_result["new_members"][:5]:
+                        result_lines.append(f"  • {name}")
+                    if len(sync_result["new_members"]) > 5:
+                        result_lines.append(f"  • ... and {len(sync_result['new_members']) - 5} more")
+                    result_lines.append("")
+
+                if sync_result["removed_count"] > 0:
+                    result_lines.append(f"**Removed:** {sync_result['removed_count']} member(s)")
+                    for name in sync_result["removed_members"][:5]:
+                        result_lines.append(f"  • {name}")
+                    if len(sync_result["removed_members"]) > 5:
+                        result_lines.append(f"  • ... and {len(sync_result['removed_members']) - 5} more")
+                    result_lines.append("")
+
+                result_lines.append(f"**Total members:** {sync_result['total_count']}")
+
+                try:
+                    client.chat_postMessage(
+                        channel=channel_id,
+                        text="\n".join(result_lines)
+                    )
+                except Exception as e:
+                    logger.error(f"Error posting sync result: {e}")
+            else:
+                post_ephemeral_message(
+                    client,
+                    channel_id,
+                    user_id,
+                    text="✅ *Sync Complete!*\n\nNo changes detected. All members are up to date.\n\n**Total members:** " + str(sync_result['total_count'])
+                )
+        except Exception as e:
+            logger.error(f"Error in sync command: {e}", exc_info=True)
+            say(f"❌ Error during sync: {str(e)}")
     
     elif action == "list":
         # Trigger same as panel button
