@@ -1,30 +1,67 @@
-name: DST Reminder
+name: Run meeting bot
 
 on:
   schedule:
-    - cron: '0 1 31 10 0'
-    - cron: '0 1 31 3 0'
+    - cron: '0 4 * * 3'
   workflow_dispatch:
 
 jobs:
-  notify:
+  run_bot:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify DST Change
-        run: |
-          curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
-            -H 'Content-type: application/json' \
-            -d '{
-              "text": "⏰ **DST Change Alert**",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "🕐 *DST Time Change in Romania*\n\nThe bot schedule needs updating:\n\n*Late March (Summer Time):*\nChange cron to: `0 12 * * 1-5`\n\n*Late October (Winter Time):*\nChange cron to: `0 7 * * 1-5`\n\nFile: `.github/workflows/run-bot.yml`"
-                  }
-                }
-              ]
-            }'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run meeting bot with retry (3 attempts, 10 min interval)
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          MEETING_CHANNEL_ID: ${{ secrets.MEETING_CHANNEL_ID }}
+        run: |
+          MAX_ATTEMPTS=3
+          WAIT_TIME=600
+          ATTEMPT=0
+          SUCCESS=false
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ] && [ "$SUCCESS" = "false" ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "=========================================="
+            echo "🔄 ATTEMPT $ATTEMPT of $MAX_ATTEMPTS"
+            echo "Time: $(date)"
+            echo "=========================================="
+
+            if python meeting_leader_bot.py; then
+              echo "✅ SUCCESS on attempt $ATTEMPT"
+              SUCCESS=true
+              exit 0
+            else
+              EXIT_CODE=$?
+              echo "❌ FAILED on attempt $ATTEMPT (exit code: $EXIT_CODE)"
+
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo "⏳ Waiting $WAIT_TIME seconds (10 minutes) before retry..."
+                echo "Next attempt at: $(date -d "+$WAIT_TIME seconds")"
+                sleep $WAIT_TIME
+              fi
+            fi
+          done
+
+          if [ "$SUCCESS" = "false" ]; then
+            echo "❌ ALL $MAX_ATTEMPTS ATTEMPTS FAILED"
+            exit 1
+          fi
+
+      - name: Notify failure (if all retries exhausted)
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          MEETING_CHANNEL_ID: ${{ secrets.MEETING_CHANNEL_ID }}
+        run: |
+          echo "⚠️ Meeting bot workflow failed after 3 attempts"
+          echo "Check GitHub Actions logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

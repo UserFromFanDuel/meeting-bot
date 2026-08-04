@@ -59,7 +59,7 @@ def load_data():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
             return json.load(f)
-    
+
     return {
         "members": {},
         "history": [],
@@ -96,25 +96,25 @@ def check_user_status(client, user_id):
     try:
         user_info = client.users_info(user=user_id)
         user = user_info["user"]
-        
+
         if user.get("deleted", False):
             return False, "User account is deactivated"
-        
+
         profile = user.get("profile", {})
         status_text = profile.get("status_text", "").lower()
         status_emoji = profile.get("status_emoji", "").lower()
-        
+
         vacation_keywords = ["vacation", "ooo", "out of office", "away", "off", "pto", "holiday"]
-        
+
         if any(keyword in status_text for keyword in vacation_keywords):
             return False, f"Status: {profile.get('status_text', 'Away')}"
-        
+
         vacation_emojis = [":palm_tree:", ":airplane:", ":beach:", ":sunny:", ":camping:", ":mountain:"]
         if any(emoji in status_emoji for emoji in vacation_emojis):
             return False, f"Status: {profile.get('status_text', 'On vacation')}"
-        
+
         return True, "Available"
-    
+
     except Exception:
         return True, "Unknown"
 
@@ -125,16 +125,16 @@ def post_audit_log(client, channel_id, actor_name, action, affected_names):
     """
     if not affected_names:
         return
-    
+
     if len(affected_names) == 1:
         affected_str = affected_names[0]
     elif len(affected_names) == 2:
         affected_str = f"{affected_names[0]} and {affected_names[1]}"
     else:
         affected_str = ", ".join(affected_names[:-1]) + f", and {affected_names[-1]}"
-    
+
     message = f"📋 _{actor_name} {action} {affected_str}._"
-    
+
     try:
         client.chat_postMessage(
             channel=channel_id,
@@ -163,7 +163,7 @@ def post_ephemeral_message(client, channel_id, user_id, text=None, blocks=None):
 def sync_channel_members(client, channel_id, data, verbose=False):
     """
     Synchronize member list from Slack channel.
-    
+
     Returns:
         dict: {
             "new_count": int,
@@ -175,38 +175,38 @@ def sync_channel_members(client, channel_id, data, verbose=False):
     """
     if verbose:
         logger.info(f"SYNC STARTED - Channel: {channel_id}")
-    
+
     try:
         result = client.conversations_members(channel=channel_id)
         channel_member_ids = set(result["members"])
-        
+
         bot_info = client.auth_test()
         bot_user_id = bot_info["user_id"]
         channel_member_ids.discard(bot_user_id)
-        
+
         channel_user_data = {}
-        
+
         for user_id in channel_member_ids:
             try:
                 user_info = client.users_info(user=user_id)
-                
+
                 if not user_info.get("ok"):
                     continue
-                    
+
                 user_data = user_info.get("user")
                 if not user_data or user_data.get("is_bot", False):
                     continue
-        
+
                 profile = user_data.get("profile", {})
                 email = profile.get("email", "").lower().strip()
                 if not email:
                     email = user_data.get("email", "").lower().strip()
-        
+
                 full_name = user_data.get("real_name") or user_data.get("name") or "Unknown"
                 name_parts = full_name.split(maxsplit=1)
                 first_name = name_parts[0] if name_parts else ""
                 last_name = name_parts[1] if len(name_parts) > 1 else ""
-        
+
                 if email:
                     channel_user_data[user_id] = {
                         "email": email,
@@ -214,46 +214,46 @@ def sync_channel_members(client, channel_id, data, verbose=False):
                         "first_name": first_name,
                         "last_name": last_name
                     }
-                    
+
             except Exception as e:
                 if verbose:
                     logger.warning(f"Error getting user info for {user_id}: {e}")
                 continue
-        
+
         data_email_to_id = {}
         for user_id, member in data["members"].items():
             email = member.get("email", "").lower().strip()
             if email:
                 data_email_to_id[email] = user_id
-        
+
         new_member_count = 0
         removed_member_count = 0
         new_member_names = []
         removed_member_names = []
-        
+
         for user_id, user_info in channel_user_data.items():
             current_email = user_info["email"]
             current_name = user_info["name"]
             current_first_name = user_info["first_name"]
             current_last_name = user_info["last_name"]
-            
+
             if user_id in data["members"]:
                 stored_email = data["members"][user_id].get("email", "").lower().strip()
-                
+
                 data["members"][user_id]["email"] = current_email
                 data["members"][user_id]["name"] = current_name
                 data["members"][user_id]["first_name"] = current_first_name
                 data["members"][user_id]["last_name"] = current_last_name
-                
+
                 if verbose and stored_email != current_email:
                     logger.info(f"Email updated: {current_name} - {stored_email} → {current_email}")
-            
+
             elif current_email in data_email_to_id:
                 old_user_id = data_email_to_id[current_email]
-                
+
                 if verbose:
                     logger.info(f"USER_ID CHANGED for {current_email}: {old_user_id} → {user_id}")
-                
+
                 data["members"][user_id] = data["members"][old_user_id].copy()
                 data["members"][user_id].update({
                     "email": current_email,
@@ -261,26 +261,26 @@ def sync_channel_members(client, channel_id, data, verbose=False):
                     "first_name": current_first_name,
                     "last_name": current_last_name
                 })
-                
+
                 del data["members"][old_user_id]
-                
+
                 if old_user_id in data.get("observers", []):
                     data["observers"].remove(old_user_id)
                     data["observers"].append(user_id)
                     data["members"][user_id]["is_observer"] = True
-                
+
                 for entry in data["history"]:
                     if entry.get("leader_id") == old_user_id:
                         entry["leader_id"] = user_id
-                
+
                 for nomination in data.get("pending_nominations", {}).values():
                     if nomination.get("user_id") == old_user_id:
                         nomination["user_id"] = user_id
-            
+
             else:
                 if verbose:
                     logger.info(f"NEW MEMBER: {current_name} - {current_email}")
-                
+
                 data["members"][user_id] = {
                     "name": current_name,
                     "first_name": current_first_name,
@@ -296,32 +296,32 @@ def sync_channel_members(client, channel_id, data, verbose=False):
                 }
                 new_member_count += 1
                 new_member_names.append(current_name)
-        
+
         current_channel_emails = {info["email"] for info in channel_user_data.values()}
-        
+
         members_to_remove = []
         for user_id, member in list(data["members"].items()):
             email = member.get("email", "").lower().strip()
             name = member.get("name", "Unknown")
-            
+
             if user_id not in channel_user_data and email not in current_channel_emails:
                 members_to_remove.append((user_id, name, email))
-        
+
         for user_id, name, email in members_to_remove:
             if verbose:
                 logger.info(f"REMOVING: {name} ({email})")
             del data["members"][user_id]
             removed_member_count += 1
             removed_member_names.append(name)
-            
+
             if user_id in data.get("observers", []):
                 data["observers"].remove(user_id)
-        
+
         save_data(data)
-        
+
         if new_member_count > 0 or removed_member_count > 0 or verbose:
             logger.info(f"Sync complete: +{new_member_count} new, -{removed_member_count} removed, {len(data['members'])} total")
-        
+
         return {
             "new_count": new_member_count,
             "removed_count": removed_member_count,
@@ -329,7 +329,7 @@ def sync_channel_members(client, channel_id, data, verbose=False):
             "new_members": new_member_names,
             "removed_members": removed_member_names
         }
-    
+
     except Exception as e:
         logger.error(f"SYNC ERROR: {str(e)}")
         return {
@@ -467,7 +467,7 @@ def create_control_panel_blocks():
 def post_control_panel(client, channel_id):
     """
     Post or update the control panel in the channel.
-    
+
     Returns:
         str: Message timestamp of the control panel
     """
@@ -477,9 +477,9 @@ def post_control_panel(client, channel_id):
             text="🤖 Meeting Leader Bot - Control Panel",
             blocks=create_control_panel_blocks()
         )
-        
+
         logger.info(f"Control panel posted: {response['ts']}")
-        
+
         try:
             client.pins_add(
                 channel=channel_id,
@@ -488,18 +488,18 @@ def post_control_panel(client, channel_id):
             logger.info("Control panel pinned successfully")
         except Exception as e:
             logger.warning(f"Could not pin control panel: {e}")
-        
+
         return response['ts']
-    
+
     except Exception as e:
         logger.error(f"Error posting control panel: {e}")
         return None
 
 def refresh_control_panel(client, channel_id, data):
     """Refresh the control panel (update existing or create new)."""
-    
+
     control_panel_ts = data.get("control_panel_ts")
-    
+
     if control_panel_ts:
         try:
             client.chat_update(
@@ -512,12 +512,12 @@ def refresh_control_panel(client, channel_id, data):
             return control_panel_ts
         except Exception as e:
             logger.warning(f"Could not update control panel, posting new one: {e}")
-    
+
     new_ts = post_control_panel(client, channel_id)
     if new_ts:
         data["control_panel_ts"] = new_ts
         save_data(data)
-    
+
     return new_ts
 # ============================================================================
 # LEADER SELECTION LOGIC
@@ -527,80 +527,80 @@ def get_eligible_members(data, current_date, client=None, check_status=False):
     """Get list of members eligible to lead a meeting on the given date."""
     current_week = get_week_number(current_date)
     eligible = []
-    
+
     for user_id, member in data["members"].items():
         if member.get("is_observer", False):
             continue
-        
+
         led_this_week = False
         for entry in data["history"]:
-            if (entry["week"] == current_week and 
-                entry["leader_id"] == user_id and 
+            if (entry["week"] == current_week and
+                entry["leader_id"] == user_id and
                 entry.get("status") == "accepted"):
                 led_this_week = True
                 break
-        
+
         if led_this_week:
             continue
-        
+
         if check_status and client:
             is_available, _ = check_user_status(client, user_id)
             if not is_available:
                 continue
-        
+
         eligible.append(user_id)
-    
+
     return eligible
 
 def calculate_weights(data, eligible_members, current_date):
     """Calculate selection weights for weighted random selection."""
     weights = []
-    
+
     for user_id in eligible_members:
         member = data["members"][user_id]
         last_led = member.get("last_led")
-        
+
         if last_led:
             last_date = datetime.strptime(last_led, "%Y-%m-%d")
             days_since = (current_date - last_date).days
             weight = max(1, days_since)
         else:
             weight = 1000
-        
+
         weights.append(weight)
-    
+
     return weights
 
 def select_random_leader(data, current_date, client=None, check_status=False):
     """Select a random leader using weighted probability."""
     eligible = get_eligible_members(data, current_date, client, check_status)
-    
+
     if not eligible:
         return None
-    
+
     weights = calculate_weights(data, eligible, current_date)
     selected = random.choices(eligible, weights=weights)[0]
-    
+
     return selected
 
 def create_nomination(client, channel_id, selected_id, data, is_auto=True):
     """
     Create and send a nomination message.
-    
+
     Returns:
         str: nomination_id or None on error
     """
     today = datetime.now()
     day_name = today.strftime("%A")
-    
+
     member = data["members"][selected_id]
     member_name = member['name']
     member_email = member.get('email', 'N/A')
-    
+
     member["total_nominated"] = member.get("total_nominated", 0) + 1
-    
+
     nomination_id = f"{selected_id}_{today.strftime('%Y%m%d_%H%M%S')}"
-    
+
     data["pending_nominations"][nomination_id] = {
         "user_id": selected_id,
         "date": today.strftime("%Y-%m-%d"),
@@ -608,7 +608,7 @@ def create_nomination(client, channel_id, selected_id, data, is_auto=True):
         "channel_id": channel_id,
         "week": get_week_number(today)
     }
-    
+
     data["history"].append({
         "date": today.strftime("%Y-%m-%d"),
         "day": day_name,
@@ -619,11 +619,11 @@ def create_nomination(client, channel_id, selected_id, data, is_auto=True):
         "status": "nominated",
         "nomination_id": nomination_id
     })
-    
+
     save_data(data)
-    
+
     selection_type = "randomly" if is_auto else "manually"
-    
+
     try:
         client.chat_postMessage(
             channel=channel_id,
@@ -675,16 +675,16 @@ def automated_nomination(client):
     if not MEETING_CHANNEL_ID:
         logger.error("MEETING_CHANNEL_ID not set")
         return
-    
+
     data = load_data()
     today = datetime.now()
     day_name = today.strftime("%A")
-    
-    if day_name not in ["Tuesday", "Thursday"]:
+
+    if day_name not in ["Wednesday"]:
         return
-    
+
     logger.info(f"Automated nomination: {today.strftime('%Y-%m-%d')} ({day_name})")
-    
+
     if is_holiday(today):
         logger.info("Public holiday detected")
         try:
@@ -695,11 +695,11 @@ def automated_nomination(client):
         except Exception as e:
             logger.error(f"Error posting holiday message: {e}")
         return
-    
+
     sync_channel_members(client, MEETING_CHANNEL_ID, data, verbose=False)
-    
+
     selected_id = select_random_leader(data, today, client, check_status=True)
-    
+
     if not selected_id:
         logger.warning("No eligible leaders available")
         try:
@@ -715,14 +715,14 @@ def automated_nomination(client):
             logger.error(f"Error posting cancellation: {e}")
         save_data(data)
         return
-    
+
     is_available, status_message = check_user_status(client, selected_id)
-    
+
     member = data["members"][selected_id]
     member_name = member['name']
-    
+
     logger.info(f"Selected: {member_name} - Available: {is_available}")
-    
+
     if not is_available:
         try:
             client.chat_postMessage(
@@ -737,7 +737,7 @@ def automated_nomination(client):
             logger.error(f"Error posting unavailable message: {e}")
         save_data(data)
         return
-    
+
     create_nomination(client, MEETING_CHANNEL_ID, selected_id, data, is_auto=True)
 # ============================================================================
 # NOMINATION RESPONSE HANDLERS
@@ -747,14 +747,14 @@ def automated_nomination(client):
 def handle_accept(ack, body, client):
     """Handle when nominated person clicks Accept button."""
     ack()
-    
+
     nomination_id = body["actions"][0]["value"]
     user_id = body["user"]["id"]
-    
+
     logger.info(f"Accept: {nomination_id} by {user_id}")
-    
+
     data = load_data()
-    
+
     if nomination_id not in data["pending_nominations"]:
         client.chat_postMessage(
             channel=body["channel"]["id"],
@@ -762,9 +762,9 @@ def handle_accept(ack, body, client):
             thread_ts=body["message"]["ts"]
         )
         return
-    
+
     nomination = data["pending_nominations"][nomination_id]
-    
+
     if nomination["user_id"] != user_id:
         client.chat_postMessage(
             channel=body["channel"]["id"],
@@ -772,25 +772,25 @@ def handle_accept(ack, body, client):
             thread_ts=body["message"]["ts"]
         )
         return
-    
+
     member = data["members"][user_id]
     member["last_led"] = nomination["date"]
     member["total_led"] = member.get("total_led", 0) + 1
     member["total_accepted"] = member.get("total_accepted", 0) + 1
-    
+
     member_name = member["name"]
     member_email = member.get("email", "N/A")
     total_led = member["total_led"]
-    
+
     for entry in data["history"]:
         if entry.get("nomination_id") == nomination_id:
             entry["status"] = "accepted"
             break
-    
+
     del data["pending_nominations"][nomination_id]
-    
+
     save_data(data)
-    
+
     try:
         client.chat_update(
             channel=body["channel"]["id"],
@@ -817,14 +817,14 @@ def handle_accept(ack, body, client):
 def handle_decline(ack, body, client):
     """Handle when nominated person clicks Decline button - auto re-nominate."""
     ack()
-    
+
     nomination_id = body["actions"][0]["value"]
     user_id = body["user"]["id"]
-    
+
     logger.info(f"Decline: {nomination_id} by {user_id}")
-    
+
     data = load_data()
-    
+
     if nomination_id not in data["pending_nominations"]:
         client.chat_postMessage(
             channel=body["channel"]["id"],
@@ -832,9 +832,9 @@ def handle_decline(ack, body, client):
             thread_ts=body["message"]["ts"]
         )
         return
-    
+
     nomination = data["pending_nominations"][nomination_id]
-    
+
     if nomination["user_id"] != user_id:
         client.chat_postMessage(
             channel=body["channel"]["id"],
@@ -842,22 +842,22 @@ def handle_decline(ack, body, client):
             thread_ts=body["message"]["ts"]
         )
         return
-    
+
     member = data["members"][user_id]
     member["total_declined"] = member.get("total_declined", 0) + 1
-    
+
     member_name = member["name"]
     member_email = member.get("email", "N/A")
-    
+
     for entry in data["history"]:
         if entry.get("nomination_id") == nomination_id:
             entry["status"] = "declined"
             break
-    
+
     del data["pending_nominations"][nomination_id]
-    
+
     save_data(data)
-    
+
     try:
         client.chat_update(
             channel=body["channel"]["id"],
@@ -878,14 +878,14 @@ def handle_decline(ack, body, client):
         )
     except Exception as e:
         logger.error(f"Error updating message: {e}")
-    
+
     logger.info("Auto re-nomination triggered")
-    
+
     today = datetime.now()
     channel_id = body["channel"]["id"]
-    
+
     new_selected_id = select_random_leader(data, today, client, check_status=True)
-    
+
     if not new_selected_id:
         logger.warning("No more eligible leaders for re-nomination")
         try:
@@ -898,9 +898,9 @@ def handle_decline(ack, body, client):
         except Exception as e:
             logger.error(f"Error posting no-leaders message: {e}")
         return
-    
+
     is_available, status_message = check_user_status(client, new_selected_id)
-    
+
     if not is_available:
         logger.warning(f"Re-nominated person unavailable: {status_message}")
         try:
@@ -912,7 +912,7 @@ def handle_decline(ack, body, client):
         except Exception as e:
             logger.error(f"Error posting unavailable message: {e}")
         return
-    
+
     create_nomination(client, channel_id, new_selected_id, data, is_auto=False)
 # ============================================================================
 # CONTROL PANEL BUTTON HANDLERS (EPHEMERAL RESPONSES)
@@ -922,14 +922,14 @@ def handle_decline(ack, body, client):
 def handle_panel_sync(ack, body, client):
     """Handle Sync Members button from control panel."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
     data = load_data()
-    
+
     post_ephemeral_message(
-        client, 
-        channel_id, 
+        client,
+        channel_id,
         user_id,
         text="🔄 Syncing members...",
         blocks=[
@@ -942,14 +942,14 @@ def handle_panel_sync(ack, body, client):
             }
         ]
     )
-    
+
     sync_result = sync_channel_members(client, channel_id, data, verbose=False)
-    
+
     result_lines = []
-    
+
     if sync_result["new_count"] > 0 or sync_result["removed_count"] > 0:
         result_lines.append("✅ *Sync Complete!*\n")
-        
+
         if sync_result["new_count"] > 0:
             result_lines.append(f"**Added:** {sync_result['new_count']} member(s)")
             for name in sync_result["new_members"][:5]:
@@ -957,7 +957,7 @@ def handle_panel_sync(ack, body, client):
             if len(sync_result["new_members"]) > 5:
                 result_lines.append(f"  • ... and {len(sync_result['new_members']) - 5} more")
             result_lines.append("")
-        
+
         if sync_result["removed_count"] > 0:
             result_lines.append(f"**Removed:** {sync_result['removed_count']} member(s)")
             for name in sync_result["removed_members"][:5]:
@@ -965,9 +965,9 @@ def handle_panel_sync(ack, body, client):
             if len(sync_result["removed_members"]) > 5:
                 result_lines.append(f"  • ... and {len(sync_result['removed_members']) - 5} more")
             result_lines.append("")
-        
+
         result_lines.append(f"**Total members:** {sync_result['total_count']}")
-        
+
         try:
             client.chat_postMessage(
                 channel=channel_id,
@@ -987,11 +987,11 @@ def handle_panel_sync(ack, body, client):
 def handle_panel_list(ack, body, client):
     """Handle List Members button from control panel - EPHEMERAL."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
     data = load_data()
-    
+
     if not data["members"]:
         post_ephemeral_message(
             client,
@@ -1000,23 +1000,23 @@ def handle_panel_list(ack, body, client):
             text="📋 No members found. Use 🔄 Sync Members button first."
         )
         return
-    
+
     eligible = []
     observers = []
-    
+
     for uid, member in data["members"].items():
         total_led = member.get("total_led", 0)
         is_observer = member.get("is_observer", False)
         email = member.get("email", "N/A")
         name = member.get("name", "Unknown")
-        
+
         if is_observer:
             observers.append((uid, name, email, total_led))
         else:
             eligible.append((uid, name, email, total_led))
-    
+
     eligible.sort(key=lambda x: x[3])
-    
+
     blocks = [
         {
             "type": "header",
@@ -1026,7 +1026,7 @@ def handle_panel_list(ack, body, client):
             }
         }
     ]
-    
+
     if eligible:
         blocks.append({
             "type": "section",
@@ -1035,7 +1035,7 @@ def handle_panel_list(ack, body, client):
                 "text": "*✅ Eligible to Lead:*"
             }
         })
-        
+
         for uid, name, email, total_led in eligible[:15]:
             blocks.append({
                 "type": "section",
@@ -1057,7 +1057,7 @@ def handle_panel_list(ack, body, client):
                     "action_id": "member_quick_action"
                 }
             })
-        
+
         if len(eligible) > 15:
             blocks.append({
                 "type": "context",
@@ -1068,9 +1068,9 @@ def handle_panel_list(ack, body, client):
                     }
                 ]
             })
-        
+
         blocks.append({"type": "divider"})
-    
+
     if observers:
         blocks.append({
             "type": "section",
@@ -1079,7 +1079,7 @@ def handle_panel_list(ack, body, client):
                 "text": "*👀 Observers (Excluded from Selection):*"
             }
         })
-        
+
         for uid, name, email, total_led in observers[:10]:
             blocks.append({
                 "type": "section",
@@ -1101,7 +1101,7 @@ def handle_panel_list(ack, body, client):
                     "action_id": "member_quick_action"
                 }
             })
-        
+
         if len(observers) > 10:
             blocks.append({
                 "type": "context",
@@ -1112,7 +1112,7 @@ def handle_panel_list(ack, body, client):
                     }
                 ]
             })
-    
+
     post_ephemeral_message(
         client,
         channel_id,
@@ -1125,10 +1125,10 @@ def handle_panel_list(ack, body, client):
 def handle_panel_add_observers(ack, body, client):
     """Handle Add Observers button from control panel - EPHEMERAL."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
-    
+
     try:
         post_ephemeral_message(
             client,
@@ -1190,13 +1190,13 @@ def handle_panel_add_observers(ack, body, client):
 def handle_panel_remove_observers(ack, body, client):
     """Handle Remove Observers button from control panel - EPHEMERAL."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
     data = load_data()
-    
+
     current_observer_ids = data.get("observers", [])
-    
+
     if not current_observer_ids:
         post_ephemeral_message(
             client,
@@ -1205,7 +1205,7 @@ def handle_panel_remove_observers(ack, body, client):
             text="⚠️ **No observers to remove**\n\nThere are currently no observers set."
         )
         return
-    
+
     try:
         post_ephemeral_message(
             client,
@@ -1267,11 +1267,11 @@ def handle_panel_remove_observers(ack, body, client):
 def handle_panel_list_observers(ack, body, client):
     """Handle List Observers button from control panel - EPHEMERAL."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
     data = load_data()
-    
+
     if "observers" not in data or not data["observers"]:
         post_ephemeral_message(
             client,
@@ -1280,21 +1280,21 @@ def handle_panel_list_observers(ack, body, client):
             text="📋 **No observers currently set**\n\nAll members are eligible for selection."
         )
         return
-    
+
     lines = ["*👀 Current Observers*\n"]
     lines.append("_These members are excluded from random selection:_\n")
-    
+
     for user_id_observer in data["observers"]:
         if user_id_observer in data["members"]:
             member = data["members"][user_id_observer]
             name = member.get("name", "Unknown")
             email = member.get("email", "N/A")
             led = member.get("total_led", 0)
-            
+
             lines.append(f"*{name}* - `{email}` - Led: {led}")
-    
+
     lines.append(f"\n**Total observers:** {len(data['observers'])}")
-    
+
     post_ephemeral_message(
         client,
         channel_id,
@@ -1306,11 +1306,11 @@ def handle_panel_list_observers(ack, body, client):
 def handle_panel_statistics(ack, body, client):
     """Handle Statistics button from control panel - EPHEMERAL."""
     ack()
-    
+
     channel_id = body["channel"]["id"]
     user_id = body["user"]["id"]
     data = load_data()
-    
+
     if not data["members"]:
         post_ephemeral_message(
             client,
@@ -1319,15 +1319,15 @@ def handle_panel_statistics(ack, body, client):
             text="📊 **No statistics available yet.**"
         )
         return
-    
+
     lines = ["*📊 Leadership Statistics*\n"]
-    
+
     sorted_members = sorted(
         data["members"].items(),
         key=lambda x: x[1].get("total_led", 0),
         reverse=True
     )
-    
+
     for uid, member in sorted_members[:20]:
         name = member.get("name", "Unknown")
         email = member.get("email", "N/A")
@@ -1336,18 +1336,18 @@ def handle_panel_statistics(ack, body, client):
         declined = member.get("total_declined", 0)
         led = member.get("total_led", 0)
         is_observer = member.get("is_observer", False)
-        
+
         status = "👀 Observer" if is_observer else "✅ Eligible"
         acceptance_rate = f"{(accepted/nominated*100):.0f}%" if nominated > 0 else "N/A"
-        
+
         lines.append(f"*{name}* - {status}")
         lines.append(f"`{email}`")
         lines.append(f"Nominated: {nominated} | Accepted: {accepted} | Declined: {declined} | Led: {led} | Rate: {acceptance_rate}")
         lines.append("")
-    
+
     if len(sorted_members) > 20:
         lines.append(f"_Showing top 20 of {len(sorted_members)} members_")
-    
+
     post_ephemeral_message(
         client,
         channel_id,
@@ -1378,12 +1378,12 @@ def handle_remove_observers_select(ack, body, action):
 def handle_confirm_add_observers(ack, body, client):
     """Confirm and process adding observers - EPHEMERAL response + PUBLIC audit log."""
     ack()
-    
+
     user_id = body["user"]["id"]
     channel_id = body["channel"]["id"]
-    
+
     selected_users = selected_users_cache.get(f"add_{user_id}", [])
-    
+
     if not selected_users:
         post_ephemeral_message(
             client,
@@ -1392,61 +1392,61 @@ def handle_confirm_add_observers(ack, body, client):
             text="⚠️ No members selected. Please try again."
         )
         return
-    
+
     data = load_data()
-    
+
     if "observers" not in data:
         data["observers"] = []
-    
+
     added_names = []
     already_observers = []
-    
+
     try:
         actor_info = client.users_info(user=user_id)
         actor_name = actor_info["user"].get("real_name", "Unknown")
     except:
         actor_name = "Unknown"
-    
+
     for selected_user_id in selected_users:
         if selected_user_id in data["members"]:
             member = data["members"][selected_user_id]
             member_name = member.get("name", "Unknown")
-            
+
             if selected_user_id in data["observers"]:
                 already_observers.append(member_name)
             else:
                 data["observers"].append(selected_user_id)
                 data["members"][selected_user_id]["is_observer"] = True
                 added_names.append(member_name)
-    
+
     save_data(data)
-    
+
     if f"add_{user_id}" in selected_users_cache:
         del selected_users_cache[f"add_{user_id}"]
-    
+
     response_lines = []
-    
+
     if added_names:
         response_lines.append(f"✅ **{len(added_names)} observer(s) added:**")
         for name in added_names:
             response_lines.append(f"• {name}")
         response_lines.append("")
-    
+
     if already_observers:
         response_lines.append(f"⚠️ **{len(already_observers)} already observer(s):**")
         for name in already_observers:
             response_lines.append(f"• {name}")
-    
+
     if not response_lines:
         response_lines.append("⚠️ No valid members selected.")
-    
+
     post_ephemeral_message(
         client,
         channel_id,
         user_id,
         text="\n".join(response_lines)
     )
-    
+
     if added_names:
         post_audit_log(client, channel_id, actor_name, "added observer", added_names)
 
@@ -1454,12 +1454,12 @@ def handle_confirm_add_observers(ack, body, client):
 def handle_confirm_remove_observers(ack, body, client):
     """Confirm and process removing observers - EPHEMERAL response + PUBLIC audit log."""
     ack()
-    
+
     user_id = body["user"]["id"]
     channel_id = body["channel"]["id"]
-    
+
     selected_users = selected_users_cache.get(f"remove_{user_id}", [])
-    
+
     if not selected_users:
         post_ephemeral_message(
             client,
@@ -1468,61 +1468,61 @@ def handle_confirm_remove_observers(ack, body, client):
             text="⚠️ No members selected. Please try again."
         )
         return
-    
+
     data = load_data()
-    
+
     if "observers" not in data:
         data["observers"] = []
-    
+
     removed_names = []
     not_observers = []
-    
+
     try:
         actor_info = client.users_info(user=user_id)
         actor_name = actor_info["user"].get("real_name", "Unknown")
     except:
         actor_name = "Unknown"
-    
+
     for selected_user_id in selected_users:
         if selected_user_id in data["members"]:
             member = data["members"][selected_user_id]
             member_name = member.get("name", "Unknown")
-            
+
             if selected_user_id in data["observers"]:
                 data["observers"].remove(selected_user_id)
                 data["members"][selected_user_id]["is_observer"] = False
                 removed_names.append(member_name)
             else:
                 not_observers.append(member_name)
-    
+
     save_data(data)
-    
+
     if f"remove_{user_id}" in selected_users_cache:
         del selected_users_cache[f"remove_{user_id}"]
-    
+
     response_lines = []
-    
+
     if removed_names:
         response_lines.append(f"✅ **{len(removed_names)} observer(s) removed:**")
         for name in removed_names:
             response_lines.append(f"• {name}")
         response_lines.append("")
-    
+
     if not_observers:
         response_lines.append(f"⚠️ **{len(not_observers)} not observer(s):**")
         for name in not_observers:
             response_lines.append(f"• {name}")
-    
+
     if not response_lines:
         response_lines.append("⚠️ No valid members selected.")
-    
+
     post_ephemeral_message(
         client,
         channel_id,
         user_id,
         text="\n".join(response_lines)
     )
-    
+
     if removed_names:
         post_audit_log(client, channel_id, actor_name, "removed observer", removed_names)
 
@@ -1530,15 +1530,15 @@ def handle_confirm_remove_observers(ack, body, client):
 def handle_cancel_observer_action(ack, body, client):
     """Handle cancel button for observer actions - EPHEMERAL."""
     ack()
-    
+
     user_id = body["user"]["id"]
     channel_id = body["channel"]["id"]
-    
+
     if f"add_{user_id}" in selected_users_cache:
         del selected_users_cache[f"add_{user_id}"]
     if f"remove_{user_id}" in selected_users_cache:
         del selected_users_cache[f"remove_{user_id}"]
-    
+
     post_ephemeral_message(
         client,
         channel_id,
@@ -1550,40 +1550,40 @@ def handle_cancel_observer_action(ack, body, client):
 def handle_member_quick_action(ack, body, client, action):
     """Handle quick action from overflow menu - EPHEMERAL response + PUBLIC audit log."""
     ack()
-    
+
     value = action["selected_option"]["value"]
     user_id = body["user"]["id"]
     channel_id = body["channel"]["id"]
-    
+
     data = load_data()
-    
+
     try:
         actor_info = client.users_info(user=user_id)
         actor_name = actor_info["user"].get("real_name", "Unknown")
     except:
         actor_name = "Unknown"
-    
+
     if value.startswith("make_observer_"):
         target_user_id = value.replace("make_observer_", "")
-        
+
         if target_user_id in data["members"]:
             if "observers" not in data:
                 data["observers"] = []
-            
+
             if target_user_id not in data["observers"]:
                 data["observers"].append(target_user_id)
                 data["members"][target_user_id]["is_observer"] = True
                 save_data(data)
-                
+
                 target_name = data["members"][target_user_id].get("name", "Unknown")
-                
+
                 post_ephemeral_message(
                     client,
                     channel_id,
                     user_id,
                     text=f"✅ {target_name} is now an observer."
                 )
-                
+
                 post_audit_log(client, channel_id, actor_name, "added observer", [target_name])
             else:
                 target_name = data["members"][target_user_id].get("name", "Unknown")
@@ -1593,28 +1593,28 @@ def handle_member_quick_action(ack, body, client, action):
                     user_id,
                     text=f"⚠️ {target_name} is already an observer."
                 )
-    
+
     elif value.startswith("remove_observer_"):
         target_user_id = value.replace("remove_observer_", "")
-        
+
         if target_user_id in data["members"]:
             if "observers" not in data:
                 data["observers"] = []
-            
+
             if target_user_id in data["observers"]:
                 data["observers"].remove(target_user_id)
                 data["members"][target_user_id]["is_observer"] = False
                 save_data(data)
-                
+
                 target_name = data["members"][target_user_id].get("name", "Unknown")
-                
+
                 post_ephemeral_message(
                     client,
                     channel_id,
                     user_id,
                     text=f"✅ {target_name} is now eligible for selection."
                 )
-                
+
                 post_audit_log(client, channel_id, actor_name, "removed observer", [target_name])
             else:
                 target_name = data["members"][target_user_id].get("name", "Unknown")
@@ -1636,14 +1636,14 @@ def handle_meeting_leader(ack, command, client):
     text = command.get("text", "").strip()
     channel_id = command["channel_id"]
     user_id = command["user_id"]
-    
+
     logger.info(f"Command: /meeting-leader {text}")
-    
+
     data = load_data()
-    
+
     parts = text.split()
     action = parts[0].lower() if parts else "help"
-    
+
     if action == "select":
         try:
             sync_channel_members(client, channel_id, data, verbose=False)
@@ -1668,7 +1668,7 @@ def handle_meeting_leader(ack, command, client):
             member_name = member["name"]
             member_email = member.get("email", "N/A")
 
-            if day_name not in ["Tuesday", "Thursday"]:
+            if day_name not in ["Wednesday"]:
                 client.chat_postMessage(
                     channel=channel_id,
                     text=f"🎲 **Random selection result:** *<@{selected_id}>*\n\n"
@@ -1685,7 +1685,7 @@ def handle_meeting_leader(ack, command, client):
                 channel=channel_id,
                 text=f"❌ Error during selection: {str(e)}"
             )
-    
+
     elif action == "sync":
         try:
             post_ephemeral_message(
@@ -1749,11 +1749,11 @@ def handle_meeting_leader(ack, command, client):
                 channel=channel_id,
                 text=f"❌ Error during sync: {str(e)}"
             )
-    
+
     elif action == "list":
         # Trigger same as panel button
         handle_panel_list(ack, {"channel": {"id": channel_id}, "user": {"id": user_id}}, client)
-    
+
     elif action == "history":
         if not data["history"]:
             client.chat_postMessage(
@@ -1781,27 +1781,27 @@ def handle_meeting_leader(ack, command, client):
             channel=channel_id,
             text="\n".join(lines)
         )
-    
+
     elif action == "stats" or action == "statistics":
         # Trigger same as panel button
         handle_panel_statistics(ack, {"channel": {"id": channel_id}, "user": {"id": user_id}}, client)
-    
+
     elif action == "add-observer":
         handle_panel_add_observers(ack, {"channel": {"id": channel_id}, "user": {"id": user_id}}, client)
-    
+
     elif action == "remove-observer":
         handle_panel_remove_observers(ack, {"channel": {"id": channel_id}, "user": {"id": user_id}}, client)
-    
+
     elif action == "list-observers":
         handle_panel_list_observers(ack, {"channel": {"id": channel_id}, "user": {"id": user_id}}, client)
-    
+
     elif action == "refresh-panel":
         refresh_control_panel(client, channel_id, data)
         client.chat_postMessage(
             channel=channel_id,
             text="✅ Control panel refreshed!"
         )
-    
+
     else:
         client.chat_postMessage(
             channel=channel_id,
@@ -1840,7 +1840,7 @@ A persistent control panel with visual buttons is available in the channel for e
 • **Persistent Control Panel** - Always visible in channel
 
 *⚙️ Automated Behavior:*
-• **Tuesday & Thursday at 10:00 AM** - Automatic leader nomination
+• **Wednesday at 05:00 UTC (08:00 AM RO)** - Automatic leader nomination
 • **Auto re-nomination** - If person declines, bot automatically selects another
 • **Holiday detection** - No nominations on public holidays
 • **Vacation status check** - Skips members with OOO/vacation status
@@ -1875,7 +1875,7 @@ _Use the control panel buttons above or type commands for quick access!_"""
 def handle_member_joined(event, client):
     """Auto-sync when someone joins the channel."""
     channel_id = event["channel"]
-    
+
     if channel_id == MEETING_CHANNEL_ID:
         data = load_data()
         sync_channel_members(client, channel_id, data, verbose=False)
@@ -1885,7 +1885,7 @@ def handle_member_joined(event, client):
 def handle_member_left(event, client):
     """Auto-sync when someone leaves the channel."""
     channel_id = event["channel"]
-    
+
     if channel_id == MEETING_CHANNEL_ID:
         data = load_data()
         sync_channel_members(client, channel_id, data, verbose=False)
@@ -1897,7 +1897,7 @@ def handle_member_left(event, client):
 
 def post_control_panel_scheduled(client):
     """
-    Post control panel at 09:23 AM RO time (06:23 UTC).
+    Post control panel at 05:00 UTC.
     Runs independently from nominalization.
     """
     if not MEETING_CHANNEL_ID:
@@ -1908,7 +1908,7 @@ def post_control_panel_scheduled(client):
     today = datetime.now()
     day_name = today.strftime("%A")
 
-    if day_name not in ["Tuesday", "Thursday"]:
+    if day_name not in ["Wednesday"]:
         return
 
     if is_holiday(today):
@@ -1933,7 +1933,7 @@ def post_control_panel_scheduled(client):
 
 def run_nominalization_scheduled(client):
     """
-    Run nomination process at 09:24 AM RO time (06:24 UTC).
+    Run nomination process at 05:01 UTC.
     Runs 1 minute AFTER panel post.
     """
     if not MEETING_CHANNEL_ID:
@@ -1944,7 +1944,7 @@ def run_nominalization_scheduled(client):
     today = datetime.now()
     day_name = today.strftime("%A")
 
-    if day_name not in ["Tuesday", "Thursday"]:
+    if day_name not in ["Wednesday"]:
         return
 
     if is_holiday(today):
@@ -2007,28 +2007,26 @@ def run_scheduler(client):
     Scheduler with two independent jobs for control panel and nominalization.
 
     Timeline:
-    - 08:00 AM RO (05:00 UTC): Post control panel
-    - 08:01 AM RO (05:01 UTC): Run nominalization (1 minute later)
+    - 05:00 UTC: Post control panel
+    - 05:01 UTC: Run nominalization (1 minute later)
 
-    CATCH-UP LOGIC: If bot starts late (after 05:00 UTC on Tue/Thu), runs jobs immediately.
+    CATCH-UP LOGIC: If bot starts late (after 05:00 UTC on Wednesday), runs jobs immediately.
     This handles GitHub Actions queue delays.
     """
-    schedule.every().tuesday.at("05:00").do(lambda: post_control_panel_scheduled(client))
-    schedule.every().thursday.at("05:00").do(lambda: post_control_panel_scheduled(client))
+    schedule.every().wednesday.at("05:00").do(lambda: post_control_panel_scheduled(client))
 
-    schedule.every().tuesday.at("05:01").do(lambda: run_nominalization_scheduled(client))
-    schedule.every().thursday.at("05:01").do(lambda: run_nominalization_scheduled(client))
+    schedule.every().wednesday.at("05:01").do(lambda: run_nominalization_scheduled(client))
 
     logger.info("Scheduler started:")
-    logger.info("  • Control Panel: Tuesday & Thursday @ 08:00 AM RO (05:00 UTC)")
-    logger.info("  • Nominalization: Tuesday & Thursday @ 08:01 AM RO (05:01 UTC)")
+    logger.info("  • Control Panel: Wednesday @ 05:00 UTC")
+    logger.info("  • Nominalization: Wednesday @ 05:01 UTC")
 
     # CATCH-UP LOGIC: Run jobs immediately if bot started late
     now = datetime.now()
     day_name = now.strftime("%A")
     hour_minute = now.strftime("%H:%M")
 
-    if day_name in ["Tuesday", "Thursday"]:
+    if day_name in ["Wednesday"]:
         if hour_minute >= "05:00" and hour_minute < "05:01":
             logger.info("⏰ Running CATCH-UP: Post control panel (late start)")
             post_control_panel_scheduled(client)
@@ -2052,22 +2050,22 @@ def run_scheduler(client):
 
 if __name__ == "__main__":
     logger.info("=== MEETING LEADER BOT - CONTROL PANEL EDITION STARTING ===")
-    
+
     if not os.environ.get("SLACK_BOT_TOKEN"):
         logger.error("SLACK_BOT_TOKEN not set!")
         exit(1)
-    
+
     if not os.environ.get("SLACK_APP_TOKEN"):
         logger.error("SLACK_APP_TOKEN not set!")
         exit(1)
-    
+
     if not MEETING_CHANNEL_ID:
         logger.warning("MEETING_CHANNEL_ID not set - automated nominations and control panel disabled")
-    
+
     logger.info("Environment variables validated")
-    
+
     slack_client = app.client
-    
+
     # Post control panel on startup
     if MEETING_CHANNEL_ID:
         logger.info("Posting control panel to channel...")
@@ -2079,7 +2077,7 @@ if __name__ == "__main__":
             logger.info("Control panel posted successfully")
         else:
             logger.warning("Failed to post control panel")
-    
+
     # Start scheduler thread
     scheduler_thread = threading.Thread(
         target=run_scheduler,
@@ -2089,9 +2087,9 @@ if __name__ == "__main__":
     )
     scheduler_thread.start()
     logger.info("Scheduler thread started")
-    
+
     logger.info("Bot is now running with control panel and ephemeral features")
-    
+
     try:
         handler = SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"])
         handler.start()
