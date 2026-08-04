@@ -526,21 +526,27 @@ def refresh_control_panel(client, channel_id, data):
 def get_eligible_members(data, current_date, client=None, check_status=False):
     """Get list of members eligible to lead a meeting on the given date."""
     current_week = get_week_number(current_date)
+    today_date = current_date.strftime("%Y-%m-%d")
     eligible = []
 
     for user_id, member in data["members"].items():
         if member.get("is_observer", False):
             continue
 
-        led_this_week = False
+        # Check history for accepted meetings this week or declined nominations today
+        skip_this_user = False
         for entry in data["history"]:
-            if (entry["week"] == current_week and
-                entry["leader_id"] == user_id and
-                entry.get("status") == "accepted"):
-                led_this_week = True
-                break
+            if entry["leader_id"] == user_id:
+                # Skip if accepted meeting this week
+                if entry["week"] == current_week and entry.get("status") == "accepted":
+                    skip_this_user = True
+                    break
+                # Skip if declined TODAY - exclude from re-nomination
+                if entry.get("date") == today_date and entry.get("status") == "declined":
+                    skip_this_user = True
+                    break
 
-        if led_this_week:
+        if skip_this_user:
             continue
 
         if check_status and client:
