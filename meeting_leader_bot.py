@@ -2083,23 +2083,11 @@ if __name__ == "__main__":
 
     slack_client = app.client
 
-    # Post control panel on startup ONLY on Wednesday
+    # *** IMPORTANT: Do NOT post control panel on startup ***
+    # Let the scheduler handle it at 05:00 UTC on Wednesday only
+    # This prevents duplicate control panel posts and nominations
     if MEETING_CHANNEL_ID:
-        today = datetime.now()
-        day_name = today.strftime("%A")
-
-        if day_name == "Wednesday":
-            logger.info("Posting control panel to channel (Wednesday startup)...")
-            data = load_data()
-            control_panel_ts = post_control_panel(slack_client, MEETING_CHANNEL_ID)
-            if control_panel_ts:
-                data["control_panel_ts"] = control_panel_ts
-                save_data(data)
-                logger.info("Control panel posted successfully")
-            else:
-                logger.warning("Failed to post control panel")
-        else:
-            logger.info(f"Skipping control panel post on {day_name} startup (scheduled for Wednesday only)")
+        logger.info("Startup: Skipping control panel post (scheduler handles it at 05:00 UTC Wednesday)")
 
     # Start scheduler thread
     scheduler_thread = threading.Thread(
